@@ -2,27 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DNS & Network Diagnostic Tool</title>
+  <title>DNS & WHOIS Lookup</title>
   <style>
     body {
-      background-color: #0e0e10;
+      background-color: #0d0f12;
       color: #e0e0e0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 2rem;
-      line-height: 1.6;
     }
 
-    h1, h2, h3 {
+    h1, h2 {
       color: #00ffc3;
-      text-shadow: 0 0 5px #00ffc3;
+      text-shadow: 0 0 6px #00ffc3;
+      margin-top: 0;
+    }
+
+    h3 {
+      color: #7df9ff;
+      margin-bottom: 0.3rem;
     }
 
     input[type="text"] {
       width: 100%;
       padding: 0.75rem;
       font-size: 1rem;
-      background-color: #1b1b1e;
+      background-color: #161a1e;
       border: 1px solid #00ffc3;
       color: #fff;
       border-radius: 5px;
@@ -31,7 +36,7 @@
 
     button {
       margin-top: 1rem;
-      padding: 0.75rem 1.5rem;
+      padding: 0.7rem 1.2rem;
       font-size: 1rem;
       border: none;
       border-radius: 5px;
@@ -45,86 +50,139 @@
 
     button:hover {
       box-shadow: 0 0 15px #00ffc3, 0 0 30px #008cff;
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
 
-    .result-block {
-      background-color: #1e1e22;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 1.5rem;
-      box-shadow: 0 0 10px rgba(0, 255, 195, 0.1);
+    .container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .panel {
+      background-color: #1a1d22;
+      border: 1px solid #2c2f35;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 0 10px rgba(0, 255, 195, 0.08);
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.5rem;
     }
 
     pre {
-      white-space: pre-wrap;
-      color: #00e6ff;
-      font-family: monospace;
-      background-color: #121214;
+      background-color: #101215;
       padding: 1rem;
       border-radius: 6px;
+      color: #00eaff;
+      font-family: monospace;
       overflow-x: auto;
+      margin-top: 0.5rem;
     }
 
-    #dnsForm {
-      max-width: 700px;
-      margin-bottom: 2rem;
+    .label {
+      display: inline-block;
+      background-color: #2f3540;
+      padding: 0.3rem 0.6rem;
+      border-radius: 5px;
+      margin-right: 0.5rem;
+      color: #00ffc3;
+      font-size: 0.9rem;
     }
 
-    #dnsResults {
-      max-width: 1000px;
+    .whois-box {
+      background-color: #121417;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      color: #cccccc;
     }
 
-    ::selection {
-      background: #00ffc3;
-      color: #000;
+    #pingResult {
+      font-size: 1rem;
+      margin-top: 1rem;
+      color: #7df9ff;
+      background-color: #16191d;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
 
-  <h1>🛰️ Network Diagnostics</h1>
+  <h1>🛰️ DNS & WHOIS Dashboard</h1>
 
-  <h2>DNS Lookup Tool</h2>
   <form id="dnsForm">
-    <input type="text" name="domain" id="domainInput" placeholder="Enter domain or IP (e.g., bratie.net)" required>
-    <button type="submit">Run Full DNS Check</button>
+    <input type="text" id="domainInput" placeholder="Enter a domain (e.g., example.com)" required>
+    <button type="submit">Lookup</button>
   </form>
 
-  <div id="dnsResults"></div>
+  <div class="container">
+    <!-- Left: DNS Records -->
+    <div id="dnsResults" class="panel">
+      <div class="section-title">DNS RECORDS</div>
+      <!-- DNS content will be injected here -->
+    </div>
+
+    <!-- Right: WHOIS + PING -->
+    <div class="panel">
+      <div class="section-title">WHOIS</div>
+      <div id="whoisResult" class="whois-box">Waiting for query...</div>
+
+      <div class="section-title" style="margin-top: 2rem;">PING CHECK</div>
+      <button id="pingBtn">Start PING Test</button>
+      <div id="pingResult">No ping test yet.</div>
+    </div>
+  </div>
 
   <script>
     document.getElementById('dnsForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       const domain = document.getElementById('domainInput').value;
-      const recordTypes = ['A', 'MX', 'CNAME', 'TXT', 'NS', 'PTR'];
-      const resultsContainer = document.getElementById('dnsResults');
-      resultsContainer.innerHTML = '';
+      const dnsResults = document.getElementById('dnsResults');
+      const whoisBox = document.getElementById('whoisResult');
 
-      for (const type of recordTypes) {
+      dnsResults.innerHTML = `<div class="section-title">DNS RECORDS</div>`;
+      whoisBox.innerText = "Fetching WHOIS data...";
+
+      const types = ['A', 'MX', 'CNAME', 'TXT', 'NS', 'PTR'];
+
+      for (const type of types) {
         const res = await fetch(`/dns?domain=${domain}&record_type=${type}`);
         const data = await res.json();
 
         const block = document.createElement('div');
-        block.classList.add('result-block');
-
         const title = document.createElement('h3');
         title.innerText = `${type} Records`;
         block.appendChild(title);
 
         const pre = document.createElement('pre');
-        if (data.error) {
-          pre.innerText = `Error: ${data.error}`;
-        } else if (data.results && data.results.length > 0) {
-          pre.innerText = data.results.join('\n');
-        } else {
-          pre.innerText = 'No records found.';
-        }
+        pre.innerText = data.error ? `Error: ${data.error}` :
+                       (data.results && data.results.length > 0 ? data.results.join('\n') : 'No records found.');
         block.appendChild(pre);
-
-        resultsContainer.appendChild(block);
+        dnsResults.appendChild(block);
       }
+
+      const whoisRes = await fetch(`/whois?domain=${domain}`);
+      const whoisData = await whoisRes.json();
+      whoisBox.innerText = whoisData.result || whoisData.error || 'No WHOIS info available.';
+    });
+
+    document.getElementById('pingBtn').addEventListener('click', async function () {
+      const domain = document.getElementById('domainInput').value;
+      const pingBox = document.getElementById('pingResult');
+      pingBox.innerText = "Pinging...";
+      const res = await fetch(`/ping?domain=${domain}`);
+      const data = await res.json();
+      pingBox.innerText = data.result || data.error || 'No ping result.';
     });
   </script>
 
