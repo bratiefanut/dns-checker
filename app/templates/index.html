@@ -171,7 +171,7 @@
         dnsResults.appendChild(block);
       }
 
-      const whoisRes = await fetch(`/whois?domain=${domain}`);
+      const whoisRes = await fetch(`/whois?host=${domain}`);
       const whoisData = await whoisRes.json();
       whoisBox.innerText = whoisData.result || whoisData.error || 'No WHOIS info available.';
     });
@@ -180,7 +180,7 @@
       const domain = document.getElementById('domainInput').value;
       const pingBox = document.getElementById('pingResult');
       pingBox.innerText = "Pinging...";
-      const res = await fetch(`/ping?domain=${domain}`);
+      const res = await fetch(`/ping?host=${domain}`);
       const data = await res.json();
       pingBox.innerText = data.result || data.error || 'No ping result.';
     });
