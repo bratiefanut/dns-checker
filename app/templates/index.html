@@ -2,88 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Domain Tools</title>
+    <title>Domain Analyzer</title>
     <style>
         body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 2rem;
+            background-color: #0a0f1a;
+            color: #e0e6ed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         h1 {
-            color: #58a6ff;
             text-align: center;
+            color: #00bcd4;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
         input[type="text"] {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 0.5rem;
-            width: 300px;
+            background: #121a2f;
+            border: 1px solid #1f2a40;
+            padding: 0.75rem;
+            width: 280px;
+            border-radius: 5px;
+            color: #e0e6ed;
+            font-size: 1rem;
             margin-right: 1rem;
         }
 
         button {
-            background-color: #238636;
-            color: white;
+            padding: 0.75rem 1.5rem;
+            background-color: #00bcd4;
+            color: #fff;
             border: none;
-            padding: 0.5rem 1rem;
+            border-radius: 5px;
             cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .container {
+        button:hover {
+            background-color: #0097a7;
+        }
+
+        .grid-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            margin-top: 2rem;
         }
 
-        .section {
-            background-color: #161b22;
-            border: 1px solid #30363d;
+        .panel {
+            background-color: #121a2f;
+            padding: 1rem 1.5rem;
+            border: 1px solid #1f2a40;
             border-radius: 8px;
-            padding: 1rem;
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.1);
+        }
+
+        .panel h2 {
+            color: #00bcd4;
+            border-bottom: 1px solid #1f2a40;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: normal;
         }
 
         pre {
-            background-color: #0d1117;
-            border-left: 4px solid #58a6ff;
-            padding: 1rem;
-            overflow-x: auto;
-            color: #8b949e;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #c1c8d3;
         }
 
-        label {
-            font-size: 1.1rem;
-        }
-
-        .output-title {
-            font-weight: bold;
-            color: #79c0ff;
-            margin-bottom: 0.5rem;
+        @media (max-width: 800px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Domain Information Tool</h1>
+    <h1>Domain Analyzer</h1>
+
     <form id="domain-form">
-        <label for="domain-input">Enter domain:</label>
-        <input type="text" id="domain-input" name="domain" placeholder="example.com" required>
-        <button type="submit">Query</button>
+        <input type="text" id="domain-input" placeholder="Enter domain (e.g. example.com)" required />
+        <button type="submit">Lookup</button>
     </form>
 
-    <div class="container">
-        <div class="section">
-            <div class="output-title">DNS Records</div>
+    <div class="grid-container">
+        <div class="panel">
+            <h2>DNS Records</h2>
             <pre id="dns-output">Awaiting input...</pre>
         </div>
-        <div class="section">
-            <div class="output-title">WHOIS Info</div>
+
+        <div class="panel">
+            <h2>WHOIS Info</h2>
             <pre id="whois-output">Awaiting input...</pre>
-            <div class="output-title" style="margin-top:1rem;">Ping Result</div>
+
+            <h2>Ping Result</h2>
             <pre id="ping-output">Awaiting input...</pre>
         </div>
     </div>
@@ -100,15 +127,15 @@
                     document.getElementById("whois-output").textContent = data.output || data.error;
                 });
 
-            // Ping
+            // PING
             fetch(`/ping?host=${domain}`)
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById("ping-output").textContent = data.output || data.error;
                 });
 
-            // DNS
-            const recordTypes = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'NS', 'PTR'];
+            // DNS Records
+            const recordTypes = ['A', 'AAAA', 'MX', 'TXT', 'CNAME', 'NS', 'PTR'];
             let dnsOutput = "";
 
             for (let type of recordTypes) {
@@ -121,7 +148,7 @@
                         dnsOutput += `>>> ${type} Records: Error - ${data.error}\n\n`;
                     }
                 } catch (err) {
-                    dnsOutput += `>>> ${type} Records: Fetch error\n\n`;
+                    dnsOutput += `>>> ${type} Records: Request Failed\n\n`;
                 }
             }
 
