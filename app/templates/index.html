@@ -1,43 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Network Diagnostics</title>
+  <meta charset="UTF-8">
+  <title>DNS & Network Diagnostic Tool</title>
   <style>
     body {
-      font-family: sans-serif;
-      margin: 2rem;
+      background-color: #0e0e10;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.6;
     }
-    h1 {
-      color: #333;
+
+    h1, h2, h3 {
+      color: #00ffc3;
+      text-shadow: 0 0 5px #00ffc3;
     }
-    form {
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      background-color: #1b1b1e;
+      border: 1px solid #00ffc3;
+      color: #fff;
+      border-radius: 5px;
+      margin-top: 0.5rem;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #00ffc3, #008cff);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00ffc3;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      box-shadow: 0 0 15px #00ffc3, 0 0 30px #008cff;
+      transform: scale(1.05);
+    }
+
+    .result-block {
+      background-color: #1e1e22;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 0 10px rgba(0, 255, 195, 0.1);
+    }
+
+    pre {
+      white-space: pre-wrap;
+      color: #00e6ff;
+      font-family: monospace;
+      background-color: #121214;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    #dnsForm {
+      max-width: 700px;
       margin-bottom: 2rem;
     }
-    input, button {
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      display: block;
+
+    #dnsResults {
+      max-width: 1000px;
     }
-    .result-block {
-      margin-top: 1rem;
-    }
-    pre {
-      background-color: #f0f0f0;
-      padding: 1rem;
-      white-space: pre-wrap;
-      border: 1px solid #ccc;
+
+    ::selection {
+      background: #00ffc3;
+      color: #000;
     }
   </style>
 </head>
 <body>
 
-  <h1>Network Diagnostics</h1>
+  <h1>🛰️ Network Diagnostics</h1>
 
-  <!-- DNS Lookup Form -->
-  <h2>DNS Records Lookup</h2>
+  <h2>DNS Lookup Tool</h2>
   <form id="dnsForm">
-    <input type="text" name="domain" id="domainInput" placeholder="example.com or IP" required>
-    <button type="submit">Lookup DNS Records</button>
+    <input type="text" name="domain" id="domainInput" placeholder="Enter domain or IP (e.g., bratie.net)" required>
+    <button type="submit">Run Full DNS Check</button>
   </form>
 
   <div id="dnsResults"></div>
@@ -78,4 +130,3 @@
 
 </body>
 </html>
-
