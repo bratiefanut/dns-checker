@@ -2,18 +2,80 @@
 <html>
 <head>
   <title>Network Diagnostics</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2rem;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 2rem;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      display: block;
+    }
+    .result-block {
+      margin-top: 1rem;
+    }
+    pre {
+      background-color: #f0f0f0;
+      padding: 1rem;
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+    }
+  </style>
 </head>
 <body>
-  <h1>Ping Tool</h1>
-  <form action="/ping" method="get">
-    <input name="host" placeholder="example.com" />
-    <button type="submit">Ping</button>
+
+  <h1>Network Diagnostics</h1>
+
+  <!-- DNS Lookup Form -->
+  <h2>DNS Records Lookup</h2>
+  <form id="dnsForm">
+    <input type="text" name="domain" id="domainInput" placeholder="example.com or IP" required>
+    <button type="submit">Lookup DNS Records</button>
   </form>
 
-  <h1>Whois Lookup</h1>
-  <form action="/whois" method="get">
-    <input name="domain" placeholder="example.com" />
-    <button type="submit">Whois</button>
-  </form>
+  <div id="dnsResults"></div>
+
+  <script>
+    document.getElementById('dnsForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const domain = document.getElementById('domainInput').value;
+      const recordTypes = ['A', 'MX', 'CNAME', 'TXT', 'NS', 'PTR'];
+      const resultsContainer = document.getElementById('dnsResults');
+      resultsContainer.innerHTML = '';
+
+      for (const type of recordTypes) {
+        const res = await fetch(`/dns?domain=${domain}&record_type=${type}`);
+        const data = await res.json();
+
+        const block = document.createElement('div');
+        block.classList.add('result-block');
+
+        const title = document.createElement('h3');
+        title.innerText = `${type} Records`;
+        block.appendChild(title);
+
+        const pre = document.createElement('pre');
+        if (data.error) {
+          pre.innerText = `Error: ${data.error}`;
+        } else if (data.results && data.results.length > 0) {
+          pre.innerText = data.results.join('\n');
+        } else {
+          pre.innerText = 'No records found.';
+        }
+        block.appendChild(pre);
+
+        resultsContainer.appendChild(block);
+      }
+    });
+  </script>
+
 </body>
 </html>
+
