@@ -1,190 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DNS & WHOIS Lookup</title>
-  <style>
-    body {
-      background-color: #0d0f12;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 2rem;
-    }
+    <meta charset="UTF-8">
+    <title>Domain Tools</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem;
+        }
 
-    h1, h2 {
-      color: #00ffc3;
-      text-shadow: 0 0 6px #00ffc3;
-      margin-top: 0;
-    }
+        h1 {
+            color: #58a6ff;
+            text-align: center;
+        }
 
-    h3 {
-      color: #7df9ff;
-      margin-bottom: 0.3rem;
-    }
+        input[type="text"] {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 0.5rem;
+            width: 300px;
+            margin-right: 1rem;
+        }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      background-color: #161a1e;
-      border: 1px solid #00ffc3;
-      color: #fff;
-      border-radius: 5px;
-      margin-top: 0.5rem;
-    }
+        button {
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
 
-    button {
-      margin-top: 1rem;
-      padding: 0.7rem 1.2rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 5px;
-      background: linear-gradient(90deg, #00ffc3, #008cff);
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 10px #00ffc3;
-      transition: 0.3s;
-    }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
 
-    button:hover {
-      box-shadow: 0 0 15px #00ffc3, 0 0 30px #008cff;
-      transform: scale(1.03);
-    }
+        .section {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+        }
 
-    .container {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
+        pre {
+            background-color: #0d1117;
+            border-left: 4px solid #58a6ff;
+            padding: 1rem;
+            overflow-x: auto;
+            color: #8b949e;
+        }
 
-    .panel {
-      background-color: #1a1d22;
-      border: 1px solid #2c2f35;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 0 10px rgba(0, 255, 195, 0.08);
-    }
+        label {
+            font-size: 1.1rem;
+        }
 
-    .section-title {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #333;
-      padding-bottom: 0.5rem;
-    }
-
-    pre {
-      background-color: #101215;
-      padding: 1rem;
-      border-radius: 6px;
-      color: #00eaff;
-      font-family: monospace;
-      overflow-x: auto;
-      margin-top: 0.5rem;
-    }
-
-    .label {
-      display: inline-block;
-      background-color: #2f3540;
-      padding: 0.3rem 0.6rem;
-      border-radius: 5px;
-      margin-right: 0.5rem;
-      color: #00ffc3;
-      font-size: 0.9rem;
-    }
-
-    .whois-box {
-      background-color: #121417;
-      padding: 1rem;
-      border-radius: 6px;
-      font-family: monospace;
-      font-size: 0.9rem;
-      white-space: pre-wrap;
-      color: #cccccc;
-    }
-
-    #pingResult {
-      font-size: 1rem;
-      margin-top: 1rem;
-      color: #7df9ff;
-      background-color: #16191d;
-      padding: 1rem;
-      border-radius: 6px;
-      font-family: monospace;
-    }
-  </style>
+        .output-title {
+            font-weight: bold;
+            color: #79c0ff;
+            margin-bottom: 0.5rem;
+        }
+    </style>
 </head>
 <body>
+    <h1>Domain Information Tool</h1>
+    <form id="domain-form">
+        <label for="domain-input">Enter domain:</label>
+        <input type="text" id="domain-input" name="domain" placeholder="example.com" required>
+        <button type="submit">Query</button>
+    </form>
 
-  <h1>🛰️ DNS & WHOIS Dashboard</h1>
-
-  <form id="dnsForm">
-    <input type="text" id="domainInput" placeholder="Enter a domain (e.g., example.com)" required>
-    <button type="submit">Lookup</button>
-  </form>
-
-  <div class="container">
-    <!-- Left: DNS Records -->
-    <div id="dnsResults" class="panel">
-      <div class="section-title">DNS RECORDS</div>
-      <!-- DNS content will be injected here -->
+    <div class="container">
+        <div class="section">
+            <div class="output-title">DNS Records</div>
+            <pre id="dns-output">Awaiting input...</pre>
+        </div>
+        <div class="section">
+            <div class="output-title">WHOIS Info</div>
+            <pre id="whois-output">Awaiting input...</pre>
+            <div class="output-title" style="margin-top:1rem;">Ping Result</div>
+            <pre id="ping-output">Awaiting input...</pre>
+        </div>
     </div>
 
-    <!-- Right: WHOIS + PING -->
-    <div class="panel">
-      <div class="section-title">WHOIS</div>
-      <div id="whoisResult" class="whois-box">Waiting for query...</div>
+    <script>
+        document.getElementById("domain-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const domain = document.getElementById("domain-input").value;
 
-      <div class="section-title" style="margin-top: 2rem;">PING CHECK</div>
-      <button id="pingBtn">Start PING Test</button>
-      <div id="pingResult">No ping test yet.</div>
-    </div>
-  </div>
+            // WHOIS
+            fetch(`/whois?domain=${domain}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("whois-output").textContent = data.output || data.error;
+                });
 
-  <script>
-    document.getElementById('dnsForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const domain = document.getElementById('domainInput').value;
-      const dnsResults = document.getElementById('dnsResults');
-      const whoisBox = document.getElementById('whoisResult');
+            // Ping
+            fetch(`/ping?host=${domain}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("ping-output").textContent = data.output || data.error;
+                });
 
-      dnsResults.innerHTML = `<div class="section-title">DNS RECORDS</div>`;
-      whoisBox.innerText = "Fetching WHOIS data...";
+            // DNS
+            const recordTypes = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'NS', 'PTR'];
+            let dnsOutput = "";
 
-      const types = ['A', 'MX', 'CNAME', 'TXT', 'NS', 'PTR'];
+            for (let type of recordTypes) {
+                try {
+                    const res = await fetch(`/dns?domain=${domain}&record_type=${type}`);
+                    const data = await res.json();
+                    if (data.results) {
+                        dnsOutput += `>>> ${type} Records:\n${data.results.join("\n")}\n\n`;
+                    } else {
+                        dnsOutput += `>>> ${type} Records: Error - ${data.error}\n\n`;
+                    }
+                } catch (err) {
+                    dnsOutput += `>>> ${type} Records: Fetch error\n\n`;
+                }
+            }
 
-      for (const type of types) {
-        const res = await fetch(`/dns?domain=${domain}&record_type=${type}`);
-        const data = await res.json();
-
-        const block = document.createElement('div');
-        const title = document.createElement('h3');
-        title.innerText = `${type} Records`;
-        block.appendChild(title);
-
-        const pre = document.createElement('pre');
-        pre.innerText = data.error ? `Error: ${data.error}` :
-                       (data.results && data.results.length > 0 ? data.results.join('\n') : 'No records found.');
-        block.appendChild(pre);
-        dnsResults.appendChild(block);
-      }
-
-      const whoisRes = await fetch(`/whois?host=${domain}`);
-      const whoisData = await whoisRes.json();
-      whoisBox.innerText = whoisData.result || whoisData.error || 'No WHOIS info available.';
-    });
-
-    document.getElementById('pingBtn').addEventListener('click', async function () {
-      const domain = document.getElementById('domainInput').value;
-      const pingBox = document.getElementById('pingResult');
-      pingBox.innerText = "Pinging...";
-      const res = await fetch(`/ping?host=${domain}`);
-      const data = await res.json();
-      pingBox.innerText = data.result || data.error || 'No ping result.';
-    });
-  </script>
-
+            document.getElementById("dns-output").textContent = dnsOutput;
+        });
+    </script>
 </body>
 </html>
